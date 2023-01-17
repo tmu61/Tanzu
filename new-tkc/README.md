@@ -5,11 +5,8 @@ This script automates the deployment of a new TKC.
 usage: new-tkc [options]
 
 Options:
-
-  -h                  : Display help
-
+  -h                  : Display help<br />
   -n <ClusterName>    : Name of the cluster (required)
-
   -N <namespace>      : Namespace (required)
 
   -c <CPNodes>        : Number of Controller Nodes (required)
