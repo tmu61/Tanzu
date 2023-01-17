@@ -1,6 +1,7 @@
 # new-tkc
 This script automates the deployment of a new TKC.
 
+...
 usage: new-tkc [options]
 
 Options:
@@ -11,4 +12,6 @@ Options:
   -w <WNodes>         : Number of Worker Nodes (required)
   -t <template.yaml>  : Cluster template to use, defaults cluster-template.yaml
   -f <formfactor>     : Formfactor of VMs
+
+...
 
