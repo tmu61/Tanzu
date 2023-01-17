@@ -6,10 +6,10 @@ usage() {
         echo ""
         echo "Options:"
         echo "  -h                  : Display help"
-	echo "  -n <ClusterName>    : Name of the cluster"
-	echo "  -N <namespace>      : Namespace"
-	echo "  -c <CPNodes>        : Number of Controller Nodes"
-	echo "  -w <WNodes>         : Number of Worker Nodes"
+	echo "  -n <ClusterName>    : Name of the cluster (required)"
+	echo "  -N <namespace>      : Namespace (required)"
+	echo "  -c <CPNodes>        : Number of Controller Nodes (required)"
+	echo "  -w <WNodes>         : Number of Worker Nodes (required)"
 	echo "  -t <template.yaml>  : Cluster template to use, defaults to ~/k8s/cluster-template.yaml"
 	echo "  -f <formfactor>     : Formfactor of VMs"
         echo ""
@@ -78,7 +78,7 @@ shift $(( OPTIND -1 ))
 
 if [ -z "$cltemplate" ]
 then
-	cltemplate=~/k8s/cluster-template.yaml
+	cltemplate=./cluster-template.yaml
 fi
 
 #klogin >/dev/null
