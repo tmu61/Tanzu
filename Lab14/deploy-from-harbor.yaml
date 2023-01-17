@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myimage-deployment
+  labels:
+    app: myimage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: myimage
+  template:
+    metadata:
+      labels:
+        app: myimage
+    spec:
+      containers:
+      - name: myimage
+        image: 192.168.30.35/namespace-01/myimage:1.0 #<<-- full path to custom image repository
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: myimage-lb
+spec:
+  selector:
+    app: myimage
+  ports:
+    - port: 80
+      targetPort: 80
+  type: LoadBalancer

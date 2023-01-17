@@ -1,0 +1,25 @@
+apiVersion: run.tanzu.vmware.com/v1alpha1
+kind: TanzuKubernetesCluster
+metadata:
+  name: tkg-cluster-01
+  namespace: namespace-01
+spec:
+  distribution:
+    version: v1.16.8+vmware.1-tkg.3.60d2ffd
+  topology:
+    controlPlane:
+      count: 1
+      class: guaranteed-xsmall
+      storageClass: k8s-storage-policy
+    workers:
+      count: 3 # <<<--- increased number of workers to 3
+      class: guaranteed-xsmall
+      storageClass: k8s-storage-policy
+  settings:
+    network:
+      cni:
+        name: calico
+      services:
+        cidrBlocks: ["172.16.100.0/24"]
+      pods:
+        cidrBlocks: ["172.16.200.0/24"]

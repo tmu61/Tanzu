@@ -10,5 +10,7 @@ Options:<br />
   -c <CPNodes>        : Number of Controller Nodes (required)<br />
   -w <WNodes>         : Number of Worker Nodes (required)<br />
   -t <template.yaml>  : Cluster template to use, defaults cluster-template.yaml<br />
-  -f <formfactor>     : Formfactor of VMs<br />
+  -f <formfactor>     : Formfactor of VMs, defaults to best-effort-xsmall<br />
+
+It requires a template yaml file included in this directory. Other options are available for the template
 

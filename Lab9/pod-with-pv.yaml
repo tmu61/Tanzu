@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pod-with-pv-deployment
+  labels:
+    app: pod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pod
+  template:
+    metadata:
+      labels:
+        app: pod
+    spec:
+      containers:
+      - name: my-app
+        image: nginx:1.16
+        ports:
+        - containerPort: 80
+      volumes:
+      - name: my-volume
+        persistentVolumeClaim:
+          claimName: my-pvc
+
