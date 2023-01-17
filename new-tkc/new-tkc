@@ -1,0 +1,133 @@
+#!/bin/bash
+
+
+usage() {
+        echo "usage: ${0##*/} [options]"
+        echo ""
+        echo "Options:"
+        echo "  -h                  : Display help"
+	echo "  -n <ClusterName>    : Name of the cluster"
+	echo "  -N <namespace>      : Namespace"
+	echo "  -c <CPNodes>        : Number of Controller Nodes"
+	echo "  -w <WNodes>         : Number of Worker Nodes"
+	echo "  -t <template.yaml>  : Cluster template to use, defaults to ~/k8s/cluster-template.yaml"
+	echo "  -f <formfactor>     : Formfactor of VMs"
+        echo ""
+}
+
+byebye() {
+	usage
+	[ "$1" ] && echo $1
+	exit 1
+}
+
+
+#---------------------------------------------------------------------------------------------------------
+# Parse arguments
+
+while getopts "hf:n:N:c:w:t:" opt; do
+        case $opt in
+                h)
+                        usage
+                        exit 0
+                        ;;
+		n)
+			export CLUSTER=$OPTARG
+			;;
+		c)
+			c=$OPTARG
+			;;
+		N)
+			export NS=$OPTARG
+			;;
+		w)
+			w=$OPTARG
+			;;
+		t)
+			cltemplate=$OPTARG
+			if [ ! -f $cltemplate ]
+			then
+				echo "file $cltemplate does not exist!"
+				usage
+				exit 4
+			fi
+			;;
+		f)	formfactor=$OPTARG
+			;;
+                \?)
+                        echo "Invalid option: $OPTARG" >&2
+                        usage
+                        exit 2
+                        ;;
+                :)
+                        echo "Option -$OPTARG requires an argument."
+        esac
+done
+
+shift $(( OPTIND -1 ))
+
+
+[ -z "$CLUSTER" ] && byebye "-n <ClusterName> is required"
+[ -z "$c" ] && byebye "-c <CPNodes> is required"
+[ -z "$w" ] && byebye "-w <WNodes> is required"
+[ -z "$NS" ] && byebye "-N <namespace> is required"
+[ -z "$formfactor" ] && {
+	echo "No formfactor selected, using default best-effort-xsmall"
+	formfactor=best-effort-xsmall
+}
+
+if [ -z "$cltemplate" ]
+then
+	cltemplate=~/k8s/cluster-template.yaml
+fi
+
+#klogin >/dev/null
+VMCLASSES=$(kubectl get virtualmachineclassbindings -o wide|grep -v NAME|awk '{print $1}')
+if [[ ! "$VMCLASSES" =~ "$formfactor" ]]
+then
+	echo "\"$formfactor\" is invalid. Valid virtual machine classes are:"
+	echo $VMCLASSES|sed -e 's/ /\n/g'
+	exit 3
+fi
+CLYAML=$(mktemp)
+export CLUSTER c w NS formfactor
+envsubst < $cltemplate >$CLYAML
+
+#cat $CLYAML
+
+
+list_clusters() {
+	kubectl get tkc >$T
+	n=$(wc -l $T|awk '{print $1}')
+	n=$((n-1))
+	tail -$n $T|awk '{print $1}'|nl
+}
+
+new_cluster_state() {
+	ready="$c/$c Control Plane Node(s) healthy. $w/$w Worker Node(s) healthy"
+	HEALTHY=$(kubectl describe tkc $CLUSTER|grep healthy)
+	echo $HEALTHY
+	if echo $HEALTHY|grep "$ready" >/dev/null
+	then
+		echo "done creating cluster $CLUSTER"
+		exit 0
+	else
+		echo not ready
+	fi
+}
+
+kubectl config use-context $NS
+kubectl config get-contexts
+T=$(mktemp)
+list_clusters
+cat $CLYAML
+kubectl apply -f $CLYAML
+list_clusters
+rm $T
+rm $CLYAML
+while true
+do
+	new_cluster_state
+	sleep 5
+	clear
+done

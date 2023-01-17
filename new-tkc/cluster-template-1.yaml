@@ -1,0 +1,31 @@
+apiVersion: run.tanzu.vmware.com/v1alpha1
+kind: TanzuKubernetesCluster
+metadata:
+  name: ${CLUSTER}
+  namespace: ${NS}
+spec:
+  topology:
+    controlPlane:
+      count: ${c}
+      class: ${formfactor}
+      storageClass: k8s-na-policy
+    workers:
+      count: ${w}
+      class: ${formfactor}
+      storageClass: k8s-na-policy
+      volumes:
+        - name: containerd
+          mountPath: /var/lib/containerd
+          capacity:
+            storage: 64Gi
+  settings:
+    network:
+      cni:
+        name: antrea
+#      pods:
+#        cidrBlocks:
+#        - 172.27.0.0/16
+    storage:
+      defaultClass: k8s-na-policy
+  distribution:
+    version: v1.21
