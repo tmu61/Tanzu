@@ -22,9 +22,6 @@ spec:
     network:
       cni:
         name: antrea
-#      pods:
-#        cidrBlocks:
-#        - 172.27.0.0/16
     storage:
       defaultClass: k8s-na-policy
   distribution:
